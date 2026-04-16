@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, selectinload
 from app.api.schemas import EventCreate
 from app.database import get_db
 from app.models import Account, Event, EventFilterLog, EventSummary, QueuedEventRequest, Source, account_sources
-from app.services.embedding_store import EmbeddingStore
+from app.services.hybrid_search import HybridSearch
 from celery_app import celery_app
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -110,7 +110,7 @@ def event_panel_context(
 
     event_ids = None
     if search_query:
-        summary_ids = EmbeddingStore().search(search_query)
+        summary_ids = HybridSearch().search(search_query)
         if summary_ids:
             event_ids = [
                 row[0]
