@@ -11,6 +11,7 @@ from app.models import (
 )
 from app.services.event_summary import summarize_event_payload
 from celery_app import celery_app
+from tasks.embeddings import store_event_summary_embedding
 
 SUMMARY_RETRY_ATTEMPTS = 3
 
@@ -121,6 +122,13 @@ def process_queued_event_request(queued_event_request_id: int) -> dict[str, int 
                 event,
                 queued_event_request.payload,
             )
+
+            if summary_created:
+                event_summary = db.scalar(
+                    select(EventSummary).where(EventSummary.event_id == event.id)
+                )
+                if event_summary:
+                    store_event_summary_embedding.delay(event_summary.id)
 
             queued_event_request = db.get(QueuedEventRequest, queued_event_request_id)
             if queued_event_request is None:

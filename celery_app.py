@@ -18,4 +18,4 @@ celery_app.conf.update(
     task_ignore_result=False,
 )
 
-celery_app.autodiscover_tasks(["tasks.events"])
+celery_app.autodiscover_tasks(["tasks.events", "tasks.embeddings"])
