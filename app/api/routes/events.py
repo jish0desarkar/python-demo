@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.schemas import EventCreate
 from app.database import get_db
-from app.models import Account, Event, QueuedEventRequest, Source, account_sources
+from app.models import Account, Event, EventSummary, QueuedEventRequest, Source, account_sources
+from app.services.embedding_store import EmbeddingStore
 from celery_app import celery_app
 
 router = APIRouter(prefix="/events", tags=["events"])
@@ -38,7 +39,11 @@ def list_sources_data(db: Session) -> list[Source]:
     return db.scalars(select(Source).order_by(Source.id)).all()
 
 
-def list_events_data(db: Session, source_id: int | None = None) -> list[Event]:
+def list_events_data(
+    db: Session,
+    source_id: int | None = None,
+    event_ids: list[int] | None = None,
+) -> list[Event]:
     query = (
         select(Event)
         .options(
@@ -48,6 +53,8 @@ def list_events_data(db: Session, source_id: int | None = None) -> list[Event]:
         )
         .order_by(Event.id)
     )
+    if event_ids is not None:
+        query = query.where(Event.id.in_(event_ids))
     if source_id is not None:
         query = query.where(Event.source_id == source_id)
 
@@ -89,6 +96,7 @@ def event_panel_context(
     account_id: int | None = None,
     source_id: int | None = None,
     filter_source_id: int | None = None,
+    search_query: str = "",
     payload_text: str = "",
     error: str | None = None,
     message: str | None = None,
@@ -98,13 +106,29 @@ def event_panel_context(
     if selected_account_id is None and accounts:
         selected_account_id = accounts[0].id
 
+    event_ids = None
+    if search_query:
+        summary_ids = EmbeddingStore().search(search_query)
+        if summary_ids:
+            event_ids = [
+                row[0]
+                for row in db.execute(
+                    select(EventSummary.event_id).where(
+                        EventSummary.id.in_(summary_ids)
+                    )
+                ).all()
+            ]
+        else:
+            event_ids = []
+
     return {
-        "events": list_events_data(db, source_id=filter_source_id),
+        "events": list_events_data(db, source_id=filter_source_id, event_ids=event_ids),
         "accounts": accounts,
         "sources": get_event_sources(db, selected_account_id),
         "event_filter_sources": list_sources_data(db),
         "event_filters": {
             "source_id": filter_source_id,
+            "search_query": search_query,
         },
         "form_data": {
             "account_id": selected_account_id,
@@ -124,6 +148,7 @@ def render_events(
     account_id: int | None = None,
     source_id: int | None = None,
     filter_source_id: int | None = None,
+    search_query: str = "",
     payload_text: str = "",
     error: str | None = None,
     message: str | None = None,
@@ -138,6 +163,7 @@ def render_events(
                 account_id=account_id,
                 source_id=source_id,
                 filter_source_id=filter_source_id,
+                search_query=search_query,
                 payload_text=payload_text,
                 error=error,
                 message=message,
@@ -152,13 +178,18 @@ def render_events_list(
     db: Session,
     *,
     filter_source_id: int | None = None,
+    search_query: str = "",
     status_code: int = status.HTTP_200_OK,
 ) -> HTMLResponse:
     return templates.TemplateResponse(
         "ui/partials/event/events_list.html",
         {
             "request": request,
-            **event_panel_context(db, filter_source_id=filter_source_id),
+            **event_panel_context(
+                db,
+                filter_source_id=filter_source_id,
+                search_query=search_query,
+            ),
         },
         status_code=status_code,
     )
@@ -184,6 +215,7 @@ def list_events(
     account_id: str = "",
     source_id: str = "",
     filter_source_id: str = "",
+    search_query: str = "",
     payload: str = "",
     db: Session = Depends(get_db),
 ):
@@ -214,6 +246,7 @@ def list_events(
         account_id=parsed_account_id,
         source_id=parsed_source_id,
         filter_source_id=parsed_filter_source_id,
+        search_query=search_query.strip(),
         payload_text=payload,
     )
 
@@ -222,6 +255,7 @@ def list_events(
 def list_events_partial(
     request: Request,
     filter_source_id: str = "",
+    search_query: str = "",
     db: Session = Depends(get_db),
 ):
     parsed_filter_source_id = None
@@ -235,6 +269,7 @@ def list_events_partial(
         request,
         db,
         filter_source_id=parsed_filter_source_id,
+        search_query=search_query.strip(),
     )
 
 

@@ -3,6 +3,22 @@
     <h3 style="margin: 0;">Events</h3>
     <div class="row" style="align-items: end; gap: 0.75rem;">
       <label style="margin: 0;">
+        Search
+        <input
+          type="search"
+          id="events-search-query"
+          name="search_query"
+          placeholder="Search events..."
+          value="{{ event_filters.search_query or '' }}"
+          hx-get="/events/list"
+          hx-target="#events-list-panel"
+          hx-swap="outerHTML"
+          hx-trigger="search"
+          hx-include="#events-filter-source"
+          hx-indicator="#events-list-loading"
+        >
+      </label>
+      <label style="margin: 0;">
         Filter by source
         <select
           id="events-filter-source"
@@ -11,6 +27,7 @@
           hx-target="#events-list-panel"
           hx-swap="outerHTML"
           hx-trigger="change"
+          hx-include="#events-search-query"
           hx-indicator="#events-list-loading"
         >
           <option value="">All sources</option>
@@ -26,7 +43,7 @@
         hx-get="/events/list"
         hx-target="#events-list-panel"
         hx-swap="outerHTML"
-        hx-include="#events-filter-source"
+        hx-include="#events-filter-source, #events-search-query"
         hx-indicator="#events-list-loading"
       >
         Refresh
