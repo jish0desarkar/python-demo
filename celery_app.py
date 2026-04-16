@@ -16,7 +16,12 @@ celery_app = Celery(
 celery_app.conf.update(
     broker_connection_retry_on_startup=True,
     task_ignore_result=False,
-    beat_schedule={},
+    beat_schedule={
+        "generate-random-event-every-20s": {
+            "task": "tasks.generate_event.generate_random_event",
+            "schedule": 30.0,
+        },
+    },
 )
 
-celery_app.autodiscover_tasks(["tasks.events", "tasks.embeddings"])
+celery_app.autodiscover_tasks(["tasks.events", "tasks.embeddings", "tasks.generate_event"])

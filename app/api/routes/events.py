@@ -273,6 +273,50 @@ def list_events_partial(
     )
 
 
+@router.post("/webhook", status_code=status.HTTP_202_ACCEPTED)
+def create_event_webhook(
+    event_data: EventCreate,
+    db: Session = Depends(get_db),
+):
+    account = db.get(Account, event_data.account_id)
+    if account is None:
+        raise HTTPException(status_code=404, detail="Account not found.")
+
+    source = db.get(Source, event_data.source_id)
+    if source is None or not is_source_linked_to_account(
+        db, event_data.account_id, event_data.source_id
+    ):
+        raise HTTPException(status_code=404, detail="Source not found for account.")
+
+    queued_event_request = QueuedEventRequest(
+        account_id=event_data.account_id,
+        source_id=event_data.source_id,
+        payload=event_data.payload,
+        status="queued",
+    )
+    db.add(queued_event_request)
+    db.commit()
+    db.refresh(queued_event_request)
+
+    try:
+        celery_app.send_task(
+            "tasks.events.process_queued_event_request",
+            args=[queued_event_request.id],
+        )
+    except Exception:
+        queued_event_request.status = "failed"
+        queued_event_request.error_message = "Unable to queue event processing."
+        db.commit()
+        raise HTTPException(
+            status_code=503, detail="Unable to queue event processing."
+        )
+
+    return {
+        "status": "queued",
+        "queued_event_request_id": queued_event_request.id,
+    }
+
+
 @router.post("", response_class=HTMLResponse)
 def create_event(
     request: Request,

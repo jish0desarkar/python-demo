@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     ollama_model: str = "phi3:mini"
     ollama_timeout_seconds: int = 120
     app_name: str = "python-demo"
+    app_base_url: str = "http://web:8000"
 
 
 settings = Settings()

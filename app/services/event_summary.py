@@ -1,8 +1,7 @@
 import re
 
-from ollama import Client
-
 from app.config import settings
+from app.services.ollama_client import build_ollama_client
 
 MAX_SUMMARY_WORDS = 30
 TRAILING_FILLER_WORDS = {
@@ -23,13 +22,6 @@ TRAILING_FILLER_WORDS = {
     "via",
     "with",
 }
-
-
-def build_event_summary_client() -> Client:
-    return Client(
-        host=settings.ollama_base_url,
-        timeout=float(settings.ollama_timeout_seconds),
-    )
 
 
 def _extract_message_content(response) -> str:
@@ -54,7 +46,7 @@ def normalize_summary_text(text: str) -> str:
 
 
 def summarize_event_payload(payload: str) -> str:
-    client = build_event_summary_client()
+    client = build_ollama_client()
     response = client.chat(
         model=settings.ollama_model,
         messages=[

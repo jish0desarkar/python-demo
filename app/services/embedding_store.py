@@ -35,7 +35,7 @@ class EmbeddingStore:
         index.add_with_ids(vector, ids)
         faiss.write_index(index, FAISS_INDEX_PATH)
 
-    def search(self, query: str, k: int = 3) -> list[int]:
+    def search(self, query: str, k: int = 10) -> list[int]:
         index = self.load_index()
         if index is None:
             return []
@@ -44,3 +44,4 @@ class EmbeddingStore:
         vector = np.array([embedding], dtype=np.float32)
         distances, ids = index.search(vector, k)
         return [int(i) for i in ids[0] if i != -1]
+ 
