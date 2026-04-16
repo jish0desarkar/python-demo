@@ -16,6 +16,7 @@ celery_app = Celery(
 celery_app.conf.update(
     broker_connection_retry_on_startup=True,
     task_ignore_result=False,
+    beat_schedule={},
 )
 
 celery_app.autodiscover_tasks(["tasks.events", "tasks.embeddings"])

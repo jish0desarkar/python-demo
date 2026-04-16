@@ -37,6 +37,22 @@ services:
     depends_on:
       - redis
 
+  beat:
+    build:
+      context: .
+      dockerfile: Dockerfile.beat
+    container_name: python-demo-beat
+    volumes:
+      - .:/app
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/app.db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+    depends_on:
+      - redis
+
   ollama:
     build:
       context: .

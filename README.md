@@ -20,6 +20,8 @@ Ollama is served at http://localhost:11434.
 
 The Ollama container auto-pulls `phi3:mini` and `nomic-embed-text` on first start. The first boot can take a few minutes while the models download.
 
+This also starts a Celery worker and a separate Celery Beat container. Add periodic schedules in `celery_app.py` under `beat_schedule`.
+
 ## Event Payload Summaries
 
 Open an event detail page and click `Generate summary` to summarize the payload with the local `phi3:mini` model running in Ollama.
