@@ -1,8 +1,11 @@
 from rapidfuzz import fuzz
-
+import logging
 from app.models import Rule
 
 FUZZY_THRESHOLD = 0.75
+
+logger = logging.getLogger(__name__)
+
 
 
 class EventFilter:
@@ -10,9 +13,10 @@ class EventFilter:
         self.threshold = threshold
 
     def match(self, rules: list[Rule], payload: str) -> tuple[Rule | None, int]:
-        payload_lower = payload.lower()
         for rule in rules:
-            score = fuzz.partial_token_set_ratio(rule.rule_text.lower(), payload_lower)
+            score = fuzz.partial_token_set_ratio(rule.rule_text.lower(), payload.lower())
+            logger.info("Rule used: %s, Score: %s, Payload: %s", rule.rule_text, score, payload)
+
             if score / 100 >= self.threshold:
                 return rule, int(score)
-        return None, 0
+        return None, int(score)

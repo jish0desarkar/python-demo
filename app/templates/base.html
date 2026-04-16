@@ -144,6 +144,16 @@
         border: 1px solid #a1a1aa66;
         color: #71717a;
       }
+      .rule-box {
+        border: 1px solid #8884;
+        border-radius: 8px;
+        padding: 0.75rem;
+        margin-top: 0.5rem;
+      }
+      .rule-box.matched {
+        border-color: #15803d66;
+        background: #15803d0a;
+      }
     </style>
   </head>
   <body>
@@ -164,6 +174,7 @@
         <a href="/sources" hx-get="/sources" hx-target="#app-content" hx-swap="innerHTML">Sources</a>
         <a href="/users" hx-get="/users" hx-target="#app-content" hx-swap="innerHTML">Users</a>
         <a href="/events" hx-get="/events" hx-target="#app-content" hx-swap="innerHTML">Events</a>
+        <a href="/rules" hx-get="/rules" hx-target="#app-content" hx-swap="innerHTML">Rules</a>
         <a href="/docs">API Docs</a>
       </nav>
     </header>

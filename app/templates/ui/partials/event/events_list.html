@@ -70,6 +70,9 @@
           {% if event.is_filtered %}
             {% set fl = event.filter_logs[0] if event.filter_logs else None %}
             <span class="tag {{ fl.status if fl else 'passed' }}">{{ fl.status if fl else 'filtered' }}</span>
+            {% if fl and fl.status == 'passed' and fl.rule %}
+              <span class="muted" style="font-size: 0.85rem;">· {{ fl.rule.name }}</span>
+            {% endif %}
           {% else %}
             <span class="tag not-filtered">not filtered</span>
           {% endif %}

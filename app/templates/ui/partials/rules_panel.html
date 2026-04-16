@@ -1,0 +1,25 @@
+<section class="panel" id="rules-panel">
+  <h2 style="margin-top: 0;">Rules</h2>
+
+  {% if rules %}
+    {% set current_source_id = namespace(value=None) %}
+    {% for rule in rules %}
+      {% if rule.source_id != current_source_id.value %}
+        {% if not loop.first %}</ul>{% endif %}
+        {% set current_source_id.value = rule.source_id %}
+        <h3 style="margin-bottom: 0.5rem;">
+          {{ rule.source.name if rule.source else rule.source_id }}
+          {% if rule.source %}<span class="muted" style="font-weight: normal; font-size: 0.9rem;">({{ rule.source.key }})</span>{% endif %}
+        </h3>
+        <ul class="clean">
+      {% endif %}
+      <li class="rule-box">
+        <p style="margin: 0 0 0.35rem; font-weight: 600;">{{ rule.name }}</p>
+        <pre style="margin: 0;">{{ rule.rule_text }}</pre>
+      </li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No rules have been configured yet.</p>
+  {% endif %}
+</section>

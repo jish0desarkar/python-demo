@@ -13,6 +13,7 @@ from app.models import (
 )
 from app.services.event_filter import EventFilter
 from app.services.event_summary import summarize_event_payload
+from app.services.webhook import WebhookSender
 from celery_app import celery_app
 from tasks.embeddings import store_event_summary_embedding
 
@@ -165,6 +166,9 @@ def filter_unprocessed_events() -> dict[str, int]:
         ).all()
 
         for event in unfiltered_events:
+            if event.summary_record is None:
+                continue
+
             rules = db.scalars(
                 select(Rule).where(Rule.source_id == event.source_id)
             ).all()
@@ -172,7 +176,7 @@ def filter_unprocessed_events() -> dict[str, int]:
             if not rules:
                 continue
 
-            matched_rule, score = EventFilter().match(rules, event.payload)
+            matched_rule, score = EventFilter().match(rules, event.summary_record.summary)
 
             if matched_rule is not None:
                 log = EventFilterLog(
@@ -180,6 +184,9 @@ def filter_unprocessed_events() -> dict[str, int]:
                     event_id=event.id,
                     status="passed",
                     score=score,
+                )
+                WebhookSender().send_filter_pass(
+                    event.payload, matched_rule.name, matched_rule.rule_text
                 )
             else:
                 log = EventFilterLog(

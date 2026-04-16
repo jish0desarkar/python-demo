@@ -9,7 +9,7 @@ from app.models import Rule, Source, account_sources
 from app.services.phrase_generator import PhraseGenerator
 from celery_app import celery_app
 
-HINT_PROBABILITY = 0.4
+HINT_PROBABILITY = 0.8
 
 
 @celery_app.task(name="tasks.generate_event.generate_random_event")

@@ -21,9 +21,9 @@ def get_event(db: Session, event_id: int) -> Event:
         select(Event)
         .options(
             selectinload(Event.account),
-            selectinload(Event.source),
+            selectinload(Event.source).selectinload(Source.rules),
             selectinload(Event.summary_record),
-            selectinload(Event.filter_logs),
+            selectinload(Event.filter_logs).selectinload(EventFilterLog.rule),
         )
         .where(Event.id == event_id)
     )
@@ -51,7 +51,7 @@ def list_events_data(
             selectinload(Event.account),
             selectinload(Event.source),
             selectinload(Event.summary_record),
-            selectinload(Event.filter_logs),
+            selectinload(Event.filter_logs).selectinload(EventFilterLog.rule),
         )
         .order_by(Event.id)
     )

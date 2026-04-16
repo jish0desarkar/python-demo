@@ -37,12 +37,38 @@
         {{ event.source_id }}
       {% endif %}
     </p>
+
     {% if event.is_filtered and event.filter_logs %}
       {% set fl = event.filter_logs[0] %}
       <p>
         <strong>Filter Score:</strong> {{ fl.score }}
       </p>
+
+      {% if fl.status == 'passed' and fl.rule %}
+        <div class="rule-box matched">
+          <p style="margin: 0 0 0.35rem;"><strong>Matched Rule:</strong> {{ fl.rule.name }}</p>
+          <pre style="margin: 0;">{{ fl.rule.rule_text }}</pre>
+        </div>
+      {% elif fl.status == 'failed' %}
+        {% set source_rules = event.source.rules if event.source else [] %}
+        {% if source_rules %}
+          <div style="margin-top: 0.75rem;">
+            <strong>Rules applied (none matched):</strong>
+            <ul class="clean" style="margin-top: 0.5rem;">
+              {% for rule in source_rules %}
+                <li class="rule-box">
+                  <p style="margin: 0 0 0.35rem; font-weight: 600;">{{ rule.name }}</p>
+                  <pre style="margin: 0;">{{ rule.rule_text }}</pre>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% else %}
+          <p class="muted">No rules were configured for this source.</p>
+        {% endif %}
+      {% endif %}
     {% endif %}
+
     {% if event.summary_record %}
       <p>
         <strong>Summary:</strong>
