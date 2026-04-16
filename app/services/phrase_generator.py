@@ -13,7 +13,7 @@ class PhraseGenerator:
                 "Reply with exactly one plain-text paragraph between 50 and 70 words. "
                 "Do not use bullets, headings, quotes, or any formatting."
             )
-            user_content = f"Write a para about {source_name} event with: {hint}. Don't use the hint exactly as it is in the response. Respond in a Para not a JSON."
+            user_content = f"Write a para about {source_name} event with: {hint}. Don't include the hint exactly as it is in the response. Respond in a Para not a JSON."
         else:
             system_content = (
                 "You generate random paragraphs on arbitrary sales topics. "
@@ -28,7 +28,7 @@ class PhraseGenerator:
                 {"role": "system", "content": system_content},
                 {"role": "user", "content": user_content},
             ],
-            options={"temperature": 0.7},
+            options={"temperature": 0.8},
         )
         if hasattr(response, "message") and hasattr(response.message, "content"):
             return (response.message.content or "").strip()

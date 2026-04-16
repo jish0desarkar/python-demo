@@ -186,7 +186,12 @@ def filter_unprocessed_events() -> dict[str, int]:
                     score=score,
                 )
                 WebhookSender().send_filter_pass(
-                    event.payload, matched_rule.name, matched_rule.rule_text
+                    {
+                        "event_id": event.id,
+                        "event_text": event.payload,
+                        "filter_name": matched_rule.name,
+                        "filter_text": matched_rule.rule_text,
+                    }
                 )
             else:
                 log = EventFilterLog(

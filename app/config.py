@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     ollama_timeout_seconds: int = 120
     app_name: str = "python-demo"
     app_base_url: str = "http://web:8000"
-    webhook_url: str = "https://webhook.site/abae6d36-2cec-4bb5-8af0-55e20255a242"
+    webhook_url: str = "https://eofu3tzjzuyrmev.m.pipedream.net"
     webhook_secret: str = "super-secret-key"
 
 

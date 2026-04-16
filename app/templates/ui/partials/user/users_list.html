@@ -4,18 +4,29 @@
   {% if users %}
     <ul class="clean">
       {% for user in users %}
-        <li>
-          <strong>
-            <a
-              href="/users/{{ user.id }}"
-              hx-get="/users/{{ user.id }}"
-              hx-target="#app-content"
-              hx-swap="innerHTML"
-            >
-              {{ user.name }}
-            </a>
-          </strong>
-          <div class="muted">{{ user.email }} · account {{ user.account.name if user.account else user.account_id }}</div>
+        <li class="row spread">
+          <div>
+            <strong>
+              <a
+                href="/users/{{ user.id }}"
+                hx-get="/users/{{ user.id }}"
+                hx-target="#app-content"
+                hx-swap="innerHTML"
+              >
+                {{ user.name }}
+              </a>
+            </strong>
+            <div class="muted">{{ user.email }} · account {{ user.account.name if user.account else user.account_id }}</div>
+          </div>
+          <button
+            type="button"
+            hx-delete="/users/{{ user.id }}"
+            hx-target="#app-content"
+            hx-swap="innerHTML"
+            hx-confirm="Delete {{ user.name }}?"
+          >
+            Delete
+          </button>
         </li>
       {% endfor %}
     </ul>

@@ -53,7 +53,7 @@ def list_events_data(
             selectinload(Event.summary_record),
             selectinload(Event.filter_logs).selectinload(EventFilterLog.rule),
         )
-        .order_by(Event.id)
+        .order_by(Event.id.desc())
     )
     if event_ids is not None:
         query = query.where(Event.id.in_(event_ids))

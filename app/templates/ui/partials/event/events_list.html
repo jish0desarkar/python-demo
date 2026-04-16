@@ -53,40 +53,42 @@
 
   <p id="events-list-loading" class="muted htmx-indicator" aria-live="polite">Loading events...</p>
 
-  {% if events %}
-    <ul class="clean">
-      {% for event in events %}
-        <li>
-          <strong>
-            <a
-              href="/events/{{ event.id }}"
-              hx-get="/events/{{ event.id }}"
-              hx-target="#app-content"
-              hx-swap="innerHTML"
-            >
-              Event #{{ event.id }}
-            </a>
-          </strong>
-          {% if event.is_filtered %}
-            {% set fl = event.filter_logs[0] if event.filter_logs else None %}
-            <span class="tag {{ fl.status if fl else 'passed' }}">{{ fl.status if fl else 'filtered' }}</span>
-            {% if fl and fl.status == 'passed' and fl.rule %}
-              <span class="muted" style="font-size: 0.85rem;">· {{ fl.rule.name }}</span>
+  <div id="events-list-content">
+    {% if events %}
+      <ul class="clean">
+        {% for event in events %}
+          <li>
+            <strong>
+              <a
+                href="/events/{{ event.id }}"
+                hx-get="/events/{{ event.id }}"
+                hx-target="#app-content"
+                hx-swap="innerHTML"
+              >
+                Event #{{ event.id }}
+              </a>
+            </strong>
+            {% if event.is_filtered %}
+              {% set fl = event.filter_logs[0] if event.filter_logs else None %}
+              <span class="tag {{ fl.status if fl else 'passed' }}">{{ fl.status if fl else 'filtered' }}</span>
+              {% if fl and fl.status == 'passed' and fl.rule %}
+                <span class="muted" style="font-size: 0.85rem;">· {{ fl.rule.name }}</span>
+              {% endif %}
+            {% else %}
+              <span class="tag not-filtered">not filtered</span>
             {% endif %}
-          {% else %}
-            <span class="tag not-filtered">not filtered</span>
-          {% endif %}
-          <div class="muted">
-            account {{ event.account.name if event.account else event.account_id }} ·
-            source {{ event.source.name if event.source else event.source_id }}
-          </div>
-          {% if event.summary_record %}
-            <p style="margin: 0.35rem 0 0;">{{ event.summary_record.summary }}</p>
-          {% endif %}
-        </li>
-      {% endfor %}
-    </ul>
-  {% else %}
-    <p class="muted">No events yet.</p>
-  {% endif %}
+            <div class="muted">
+              account {{ event.account.name if event.account else event.account_id }} ·
+              source {{ event.source.name if event.source else event.source_id }}
+            </div>
+            {% if event.summary_record %}
+              <p style="margin: 0.35rem 0 0;">{{ event.summary_record.summary }}</p>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="muted">No events yet.</p>
+    {% endif %}
+  </div>
 </section>

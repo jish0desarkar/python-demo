@@ -175,3 +175,14 @@ def create_user(
 @router.get("/{user_id}", response_class=HTMLResponse)
 def show_user(request: Request, user_id: int, db: Session = Depends(get_db)):
     return render_user_detail(request, db, user_id)
+
+
+@router.delete("/{user_id}", response_class=HTMLResponse)
+def delete_user(request: Request, user_id: int, db: Session = Depends(get_db)):
+    user = get_user(db, user_id)
+    user_name = user.name
+
+    db.delete(user)
+    db.commit()
+
+    return render_users(request, db, message=f"Deleted user {user_name}.")
