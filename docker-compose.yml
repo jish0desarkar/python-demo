@@ -1,0 +1,61 @@
+services:
+  web:
+    build: .
+    container_name: python-demo-web
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/app.db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=phi3:mini
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    depends_on:
+      - redis
+      - ollama
+
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.celery
+    container_name: python-demo-worker
+    volumes:
+      - .:/app
+      - sqlite_data:/app/data
+    environment:
+      - DATABASE_URL=sqlite:////app/data/app.db
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - OLLAMA_MODEL=phi3:mini
+    depends_on:
+      - redis
+
+  ollama:
+    build:
+      context: .
+      dockerfile: Dockerfile.ollama
+    container_name: python-demo-ollama
+    ports:
+      - "11434:11434"
+    environment:
+      - OLLAMA_MODEL=phi3:mini
+      - OLLAMA_EMBEDDING_MODEL=nomic-embed-text
+    volumes:
+      - ollama_data:/root/.ollama
+
+  redis:
+    image: redis:7-alpine
+    container_name: python-demo-redis
+    ports:
+      - "6379:6379"
+
+volumes:
+  sqlite_data:
+  ollama_data:

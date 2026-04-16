@@ -1,0 +1,27 @@
+<section id="user-detail">
+  <section class="panel">
+    <p>
+      <a href="/users" hx-get="/users" hx-target="#app-content" hx-swap="innerHTML">
+        Back to users
+      </a>
+    </p>
+    <h2>{{ user.name }}</h2>
+    <p class="meta">User #{{ user.id }}</p>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p>
+      <strong>Account:</strong>
+      {% if user.account %}
+        <a
+          href="/accounts/{{ user.account.id }}"
+          hx-get="/accounts/{{ user.account.id }}"
+          hx-target="#app-content"
+          hx-swap="innerHTML"
+        >
+          {{ user.account.name }}
+        </a>
+      {% else %}
+        {{ user.account_id }}
+      {% endif %}
+    </p>
+  </section>
+</section>

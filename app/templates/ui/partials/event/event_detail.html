@@ -1,0 +1,41 @@
+<section id="event-detail">
+  <section class="panel">
+    <p>
+      <a href="/events" hx-get="/events" hx-target="#app-content" hx-swap="innerHTML">
+        Back to events
+      </a>
+    </p>
+    <h2>Event #{{ event.id }}</h2>
+    <p>
+      <strong>Account:</strong>
+      {% if event.account %}
+        <a
+          href="/accounts/{{ event.account.id }}"
+          hx-get="/accounts/{{ event.account.id }}"
+          hx-target="#app-content"
+          hx-swap="innerHTML"
+        >
+          {{ event.account.name }}
+        </a>
+      {% else %}
+        {{ event.account_id }}
+      {% endif %}
+    </p>
+    <p>
+      <strong>Source:</strong>
+      {% if event.source %}
+        {{ event.source.name }} ({{ event.source.key }})
+      {% else %}
+        {{ event.source_id }}
+      {% endif %}
+    </p>
+    {% if event.summary_record %}
+      <p>
+        <strong>Summary:</strong>
+        {{ event.summary_record.summary }}
+      </p>
+    {% endif %}
+    <h3>Payload</h3>
+    <pre>{{ event.payload }}</pre>
+  </section>
+</section>

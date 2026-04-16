@@ -1,0 +1,15 @@
+<label id="event-source-select">
+  Source
+  <select name="source_id" {% if not sources %}disabled{% endif %} required>
+    {% if sources %}
+      <option value="">Select a source</option>
+      {% for source in sources %}
+        <option value="{{ source.id }}" {% if form_data.source_id == source.id %}selected{% endif %}>
+          {{ source.name }} ({{ source.key }})
+        </option>
+      {% endfor %}
+    {% else %}
+      <option value="">Choose an account with linked sources</option>
+    {% endif %}
+  </select>
+</label>

@@ -1,0 +1,13 @@
+<section id="account-detail">
+  <section class="panel">
+    <p>
+      <a href="/accounts" hx-get="/accounts" hx-target="#app-content" hx-swap="innerHTML">
+        Back to accounts
+      </a>
+    </p>
+    <h2>{{ account.name }}</h2>
+    <p class="muted">Account #{{ account.id }}. Link shared sources below.</p>
+  </section>
+
+  {% include "ui/partials/source/sources_panel.html" %}
+</section>

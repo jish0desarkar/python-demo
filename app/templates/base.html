@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>python-demo</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.min.js" integrity="sha384-/TgkGk7p307TH7EXJDuUlgG3Ce1UVolAOFopFekQkkXihi5u/6OCvVKyz1W+idaz" crossorigin="anonymous"></script>
+    <script>
+      document.addEventListener("htmx:beforeSwap", function (event) {
+        const { xhr } = event.detail;
+        const contentType = xhr.getResponseHeader("Content-Type") || "";
+
+        if (xhr.status >= 400 && contentType.includes("text/html")) {
+          event.detail.shouldSwap = true;
+          event.detail.isError = false;
+        }
+      });
+    </script>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+      body {
+        font-family: system-ui, sans-serif;
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem 3rem;
+        line-height: 1.5;
+      }
+      nav {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+      }
+      nav a {
+        text-decoration: none;
+      }
+      section,
+      article,
+      form,
+      .panel {
+        border: 1px solid #8884;
+        border-radius: 10px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+      }
+      form {
+        display: grid;
+        gap: 0.75rem;
+      }
+      label {
+        display: grid;
+        gap: 0.25rem;
+        font-weight: 600;
+      }
+      input,
+      select,
+      textarea,
+      button {
+        font: inherit;
+        padding: 0.55rem 0.65rem;
+      }
+      button {
+        width: fit-content;
+        cursor: pointer;
+      }
+      .row {
+        display: flex;
+        gap: 0.75rem;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+      .row.spread {
+        justify-content: space-between;
+      }
+      .muted {
+        color: #666;
+      }
+      .htmx-indicator {
+        display: none;
+      }
+      .htmx-request.htmx-indicator {
+        display: block;
+      }
+      .flash {
+        border-radius: 8px;
+        padding: 0.75rem 0.9rem;
+        margin-bottom: 1rem;
+      }
+      .flash.error {
+        background: #b91c1c22;
+        border: 1px solid #b91c1c66;
+      }
+      .flash.success {
+        background: #15803d22;
+        border: 1px solid #15803d66;
+      }
+      ul.clean {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      ul.clean li + li {
+        margin-top: 0.75rem;
+      }
+      pre {
+        overflow-x: auto;
+        padding: 1rem;
+        border-radius: 8px;
+        background: #00000011;
+      }
+      .grid {
+        display: grid;
+        gap: 1rem;
+      }
+      .grid.two {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
+      .meta {
+        margin: 0;
+        font-size: 0.95rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        <a
+          href="/"
+          hx-get="/accounts"
+          hx-target="#app-content"
+          hx-swap="innerHTML"
+          style="text-decoration: none; color: inherit;"
+        >
+          python-demo
+        </a>
+      </h1>
+      <nav>
+        <a href="/accounts" hx-get="/accounts" hx-target="#app-content" hx-swap="innerHTML">Accounts</a>
+        <a href="/sources" hx-get="/sources" hx-target="#app-content" hx-swap="innerHTML">Sources</a>
+        <a href="/users" hx-get="/users" hx-target="#app-content" hx-swap="innerHTML">Users</a>
+        <a href="/events" hx-get="/events" hx-target="#app-content" hx-swap="innerHTML">Events</a>
+        <a href="/docs">API Docs</a>
+      </nav>
+    </header>
+    <main
+      id="app-content"
+      hx-get="/accounts"
+      hx-trigger="load"
+      hx-swap="innerHTML"
+    >
+      <section class="panel">
+        <p>Loading...</p>
+      </section>
+    </main>
+  </body>
+</html>

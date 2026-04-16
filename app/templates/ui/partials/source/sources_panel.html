@@ -1,0 +1,38 @@
+<section id="sources-panel">
+  <section class="panel">
+    {% include "ui/partials/shared/flash.html" %}
+
+    <form
+      action="/accounts/{{ account.id }}/sources"
+      method="post"
+      hx-post="/accounts/{{ account.id }}/sources"
+      hx-target="#app-content"
+      hx-swap="innerHTML"
+    >
+      <div class="row spread">
+        <h3 style="margin: 0;">Link Source</h3>
+        <a href="/sources" hx-get="/sources" hx-target="#app-content" hx-swap="innerHTML">
+          Manage sources
+        </a>
+      </div>
+      <label>
+        Source
+        <select name="source_id" {% if not available_sources %}disabled{% endif %} required>
+          {% if available_sources %}
+            <option value="">Select a source</option>
+            {% for source in available_sources %}
+              <option value="{{ source.id }}" {% if form_data.source_id == source.id %}selected{% endif %}>
+                {{ source.name }} ({{ source.key }})
+              </option>
+            {% endfor %}
+          {% else %}
+            <option value="">No unlinked sources available</option>
+          {% endif %}
+        </select>
+      </label>
+      <button type="submit" {% if not available_sources %}disabled{% endif %}>Add source to account</button>
+    </form>
+  </section>
+
+  {% include "ui/partials/source/sources_list.html" %}
+</section>

@@ -1,0 +1,25 @@
+<section class="panel">
+  <h3 style="margin: 0;">Accounts</h3>
+
+  {% if accounts %}
+    <ul class="clean">
+      {% for account in accounts %}
+        <li>
+          <strong>
+            <a
+              href="/accounts/{{ account.id }}"
+              hx-get="/accounts/{{ account.id }}"
+              hx-target="#app-content"
+              hx-swap="innerHTML"
+            >
+              {{ account.name }}
+            </a>
+          </strong>
+          <div class="muted">Account #{{ account.id }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No accounts yet.</p>
+  {% endif %}
+</section>

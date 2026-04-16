@@ -1,0 +1,25 @@
+<section id="sources-page">
+  <section class="panel">
+    <h2>Sources</h2>
+    <p class="muted">Create shared sources here, then link them to accounts from an account page.</p>
+  </section>
+
+  <section class="panel">
+    {% include "ui/partials/shared/flash.html" %}
+
+    <form action="/sources" method="post" hx-post="/sources" hx-target="#app-content" hx-swap="innerHTML">
+      <h3 style="margin: 0;">Create Source</h3>
+      <label>
+        Key
+        <input type="text" name="key" value="{{ form_data.key }}" required maxlength="255" />
+      </label>
+      <label>
+        Name
+        <input type="text" name="name" value="{{ form_data.name }}" required maxlength="255" />
+      </label>
+      <button type="submit">Create source</button>
+    </form>
+  </section>
+
+  {% include "ui/partials/source/source_catalog_list.html" %}
+</section>

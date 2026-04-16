@@ -1,0 +1,38 @@
+<section class="panel">
+  <h3 style="margin: 0;">Source Catalog</h3>
+
+  {% if sources %}
+    <ul class="clean">
+      {% for source in sources %}
+        <li class="row spread">
+          <div>
+            <strong>{{ source.name }}</strong>
+            <div class="muted">key: {{ source.key }} · source #{{ source.id }}</div>
+            {% if source.accounts %}
+              <div class="muted">
+                Linked to:
+                {% for account in source.accounts %}
+                  {{ account.name }}{% if not loop.last %}, {% endif %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="muted">Not linked to any accounts.</div>
+            {% endif %}
+          </div>
+          <button
+            type="button"
+            hx-delete="/sources/{{ source.id }}"
+            hx-target="#app-content"
+            hx-swap="innerHTML"
+            hx-confirm="Delete {{ source.name }}?"
+            {% if source.accounts %}disabled title="Unlink from all accounts before deleting."{% endif %}
+          >
+            Delete
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No sources created yet.</p>
+  {% endif %}
+</section>

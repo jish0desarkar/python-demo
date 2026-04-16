@@ -1,0 +1,21 @@
+<section id="accounts-page">
+  <section class="panel">
+    <h2>Accounts</h2>
+    <p class="muted">Create accounts here, then open one to manage its linked sources.</p>
+  </section>
+
+  <section class="panel">
+    {% include "ui/partials/shared/flash.html" %}
+
+    <form action="/accounts" method="post" hx-post="/accounts" hx-target="#app-content" hx-swap="innerHTML">
+      <h3 style="margin: 0;">Create Account</h3>
+      <label>
+        Name
+        <input type="text" name="name" value="{{ form_data.name }}" required maxlength="255" />
+      </label>
+      <button type="submit">Create account</button>
+    </form>
+  </section>
+
+  {% include "ui/partials/account/accounts_list.html" %}
+</section>

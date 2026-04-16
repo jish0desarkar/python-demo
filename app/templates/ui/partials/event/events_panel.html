@@ -1,0 +1,51 @@
+<section id="events-page">
+  <section class="panel">
+    <h2>Events</h2>
+    <p class="muted">Pick an account, choose one of its linked sources, then submit the event payload text.</p>
+  </section>
+
+  <section class="panel">
+    {% include "ui/partials/shared/flash.html" %}
+    {% if processing_event_count %}
+      <p class="muted">
+        {{ processing_event_count }} event{% if processing_event_count != 1 %}s{% endif %} currently being processed.
+      </p>
+    {% endif %}
+
+    <form action="/events" method="post" hx-post="/events" hx-target="#app-content" hx-swap="innerHTML">
+      <h3 style="margin: 0;">Create Event</h3>
+      <label>
+        Account
+        <select
+          name="account_id"
+          required
+          hx-get="/events"
+          hx-target="#app-content"
+          hx-swap="innerHTML"
+          hx-trigger="change"
+        >
+          {% if accounts %}
+            {% for account in accounts %}
+              <option value="{{ account.id }}" {% if form_data.account_id == account.id %}selected{% endif %}>
+                {{ account.name }}
+              </option>
+            {% endfor %}
+          {% else %}
+            <option value="">Create an account first</option>
+          {% endif %}
+        </select>
+      </label>
+
+      {% include "ui/partials/event/source_select.html" %}
+
+      <label>
+        Payload
+        <textarea name="payload" rows="8" required>{{ form_data.payload_text or "" }}</textarea>
+      </label>
+
+      <button type="submit" {% if not accounts %}disabled{% endif %}>Create event</button>
+    </form>
+  </section>
+
+  {% include "ui/partials/event/events_list.html" %}
+</section>

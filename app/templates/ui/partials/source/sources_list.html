@@ -1,0 +1,31 @@
+<section class="panel">
+  <h3 style="margin: 0;">Linked Sources</h3>
+
+  {% if sources %}
+    <ul class="clean">
+      {% for source in sources %}
+        <li class="row spread">
+          <div>
+            <strong>{{ source.name }}</strong>
+            <div class="muted">key: {{ source.key }} · source #{{ source.id }}</div>
+          </div>
+          <button
+            type="button"
+            hx-delete="/accounts/{{ account.id }}/sources/{{ source.id }}"
+            hx-target="#app-content"
+            hx-swap="innerHTML"
+            hx-confirm="Unlink {{ source.name }} from {{ account.name }}?"
+          >
+            Unlink
+          </button>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="muted">No sources linked to this account yet.</p>
+  {% endif %}
+
+  {% if not available_sources %}
+    <p class="muted">All sources are already linked here. Create new ones on the sources page.</p>
+  {% endif %}
+</section>
