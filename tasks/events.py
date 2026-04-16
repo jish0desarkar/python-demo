@@ -4,11 +4,14 @@ from app.database import SessionLocal
 from app.models import (
     Account,
     Event,
+    EventFilterLog,
     EventSummary,
     QueuedEventRequest,
+    Rule,
     Source,
     account_sources,
 )
+from app.services.event_filter import EventFilter
 from app.services.event_summary import summarize_event_payload
 from celery_app import celery_app
 from tasks.embeddings import store_event_summary_embedding
@@ -55,7 +58,7 @@ def get_event_record(db, queued_event_request: QueuedEventRequest) -> Event | No
     return db.get(Event, queued_event_request.event_id)
 
 
-def create_summary_record(db, event: Event, payload: str) -> bool:
+def create_summary_record(db, event: Event) -> bool:
     existing_summary = db.scalar(
         select(EventSummary).where(EventSummary.event_id == event.id)
     )
@@ -67,7 +70,7 @@ def create_summary_record(db, event: Event, payload: str) -> bool:
             summary_record = EventSummary(
                 account_id=event.account_id,
                 event_id=event.id,
-                summary=summarize_event_payload(payload),
+                summary=summarize_event_payload(event.payload),
             )
             db.add(summary_record)
             db.commit()
@@ -119,8 +122,7 @@ def process_queued_event_request(queued_event_request_id: int) -> dict[str, int 
 
             summary_created = create_summary_record(
                 db,
-                event,
-                queued_event_request.payload,
+                event
             )
 
             if summary_created:
@@ -129,10 +131,6 @@ def process_queued_event_request(queued_event_request_id: int) -> dict[str, int 
                 )
                 if event_summary:
                     store_event_summary_embedding.delay(event_summary.id)
-
-            queued_event_request = db.get(QueuedEventRequest, queued_event_request_id)
-            if queued_event_request is None:
-                return {"status": "missing", "queued_event_request_id": queued_event_request_id}
 
             queued_event_request.status = "completed"
             queued_event_request.error_message = None
@@ -153,5 +151,49 @@ def process_queued_event_request(queued_event_request_id: int) -> dict[str, int 
             queued_event_request.error_message = str(exc)[:255]
             db.commit()
             raise
+    finally:
+        db.close()
+
+
+@celery_app.task(name="tasks.events.filter_unprocessed_events")
+def filter_unprocessed_events() -> dict[str, int]:
+    db = SessionLocal()
+    processed = 0
+    try:
+        unfiltered_events = db.scalars(
+            select(Event).where(Event.is_filtered == False) 
+        ).all()
+
+        for event in unfiltered_events:
+            rules = db.scalars(
+                select(Rule).where(Rule.source_id == event.source_id)
+            ).all()
+
+            if not rules:
+                continue
+
+            matched_rule, score = EventFilter().match(rules, event.payload)
+
+            if matched_rule is not None:
+                log = EventFilterLog(
+                    rule_id=matched_rule.id,
+                    event_id=event.id,
+                    status="passed",
+                    score=score,
+                )
+            else:
+                log = EventFilterLog(
+                    rule_id=None,
+                    event_id=event.id,
+                    status="failed",
+                    score=score,
+                )
+
+            db.add(log)
+            event.is_filtered = True
+            db.commit()
+            processed += 1
+
+        return {"processed": processed}
     finally:
         db.close()

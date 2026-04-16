@@ -67,6 +67,12 @@
               Event #{{ event.id }}
             </a>
           </strong>
+          {% if event.is_filtered %}
+            {% set fl = event.filter_logs[0] if event.filter_logs else None %}
+            <span class="tag {{ fl.status if fl else 'passed' }}">{{ fl.status if fl else 'filtered' }}</span>
+          {% else %}
+            <span class="tag not-filtered">not filtered</span>
+          {% endif %}
           <div class="muted">
             account {{ event.account.name if event.account else event.account_id }} ·
             source {{ event.source.name if event.source else event.source_id }}

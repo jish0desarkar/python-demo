@@ -21,6 +21,10 @@ celery_app.conf.update(
             "task": "tasks.generate_event.generate_random_event",
             "schedule": 30.0,
         },
+        "filter-unprocessed-events-every-60s": {
+            "task": "tasks.events.filter_unprocessed_events",
+            "schedule": 60.0,
+        },
     },
 )
 

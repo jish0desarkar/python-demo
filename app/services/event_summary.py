@@ -1,7 +1,10 @@
+import logging
 import re
 
 from app.config import settings
 from app.services.ollama_client import build_ollama_client
+
+logger = logging.getLogger(__name__)
 
 MAX_SUMMARY_WORDS = 30
 TRAILING_FILLER_WORDS = {
@@ -67,6 +70,7 @@ def summarize_event_payload(payload: str) -> str:
         ],
         options={"temperature": 0},
     )
+    logger.info("Payload: %s", payload)
     summary = normalize_summary_text(_extract_message_content(response))
     if not summary:
         raise ValueError("Ollama returned an empty summary.")

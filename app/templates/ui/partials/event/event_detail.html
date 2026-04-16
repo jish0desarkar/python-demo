@@ -5,7 +5,15 @@
         Back to events
       </a>
     </p>
-    <h2>Event #{{ event.id }}</h2>
+    <h2>
+      Event #{{ event.id }}
+      {% if event.is_filtered %}
+        {% set fl = event.filter_logs[0] if event.filter_logs else None %}
+        <span class="tag {{ fl.status if fl else 'passed' }}">{{ fl.status if fl else 'filtered' }}</span>
+      {% else %}
+        <span class="tag not-filtered">not filtered</span>
+      {% endif %}
+    </h2>
     <p>
       <strong>Account:</strong>
       {% if event.account %}
@@ -29,6 +37,12 @@
         {{ event.source_id }}
       {% endif %}
     </p>
+    {% if event.is_filtered and event.filter_logs %}
+      {% set fl = event.filter_logs[0] %}
+      <p>
+        <strong>Filter Score:</strong> {{ fl.score }}
+      </p>
+    {% endif %}
     {% if event.summary_record %}
       <p>
         <strong>Summary:</strong>

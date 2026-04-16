@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.api.schemas import EventCreate
 from app.database import get_db
-from app.models import Account, Event, EventSummary, QueuedEventRequest, Source, account_sources
+from app.models import Account, Event, EventFilterLog, EventSummary, QueuedEventRequest, Source, account_sources
 from app.services.embedding_store import EmbeddingStore
 from celery_app import celery_app
 
@@ -23,6 +23,7 @@ def get_event(db: Session, event_id: int) -> Event:
             selectinload(Event.account),
             selectinload(Event.source),
             selectinload(Event.summary_record),
+            selectinload(Event.filter_logs),
         )
         .where(Event.id == event_id)
     )
@@ -50,6 +51,7 @@ def list_events_data(
             selectinload(Event.account),
             selectinload(Event.source),
             selectinload(Event.summary_record),
+            selectinload(Event.filter_logs),
         )
         .order_by(Event.id)
     )
