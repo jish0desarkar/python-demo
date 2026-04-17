@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.signals import worker_ready
 
 from app.config import settings
 import sys
@@ -29,3 +30,10 @@ celery_app.conf.update(
 )
 
 celery_app.autodiscover_tasks(["tasks.events", "tasks.embeddings", "tasks.generate_event"])
+
+# Runs at start and indexes. This is helpful to index if the models are changed
+@worker_ready.connect
+def enqueue_backfill_on_start(sender, **_):
+    from tasks.embeddings import backfill_active_model_embeddings
+
+    backfill_active_model_embeddings.delay()

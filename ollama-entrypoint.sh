@@ -1,7 +1,9 @@
 #!/bin/sh
 
 MODEL="${OLLAMA_MODEL:-phi3:mini}"
-EMBEDDING_MODEL="${OLLAMA_EMBEDDING_MODEL:-}"
+# Keep in sync with AVAILABLE_EMBEDDING_MODELS in app/services/llm.py so
+# switching EMBEDDING_MODEL does not require a new pull at runtime.
+EMBEDDING_MODELS="nomic-embed-text"
 
 ollama serve &
 OLLAMA_PID=$!
@@ -31,6 +33,8 @@ pull_model_if_missing() {
 }
 
 pull_model_if_missing "$MODEL"
-pull_model_if_missing "$EMBEDDING_MODEL"
+for EMB_MODEL in $EMBEDDING_MODELS; do
+  pull_model_if_missing "$EMB_MODEL"
+done
 
 wait "$OLLAMA_PID"

@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://ollama:11434"
     ollama_model: str = "phi3:mini"
     ollama_timeout_seconds: int = 120
+    embedding_model: str = "nomic-embed-text"
     app_name: str = "python-demo"
     app_base_url: str = "http://web:8000"
     webhook_url: str = "https://eofu3tzjzuyrmev.m.pipedream.net"

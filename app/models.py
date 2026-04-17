@@ -163,6 +163,18 @@ class EventSummary(TimestampMixin, Base):
     event: Mapped["Event"] = relationship(back_populates="summary_record")
 
 
+class EventSummaryEmbedding(Base):
+    __tablename__ = "event_summary_embeddings"
+
+    model_key: Mapped[str] = mapped_column(String(100), primary_key=True)
+    event_summary_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("event_summary.id", ondelete="CASCADE"),
+        primary_key=True,
+        index=True,
+    )
+
+
 class QueuedEventRequest(TimestampMixin, Base):
     __tablename__ = "queued_event_requests"
 
