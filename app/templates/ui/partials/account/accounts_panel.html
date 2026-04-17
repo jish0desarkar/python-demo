@@ -13,9 +13,37 @@
         Name
         <input type="text" name="name" value="{{ form_data.name }}" required maxlength="255" />
       </label>
+      <label>
+        Keywords (comma separated, optional)
+        <input type="text" name="keywords" value="{{ form_data.keywords }}" maxlength="1000" />
+      </label>
       <button type="submit">Create account</button>
     </form>
   </section>
 
-  {% include "ui/partials/account/accounts_list.html" %}
+  <section class="panel">
+    <form
+      hx-get="/accounts"
+      hx-target="#accounts-page"
+      hx-swap="outerHTML"
+      hx-trigger="input changed delay:300ms, submit"
+      hx-indicator="#accounts-list-loading"
+    >
+      <label>
+        Search by keyword
+        <input
+          type="search"
+          name="q"
+          value="{{ form_data.q }}"
+          placeholder="e.g. billing"
+        />
+      </label>
+    </form>
+  </section>
+
+  <p id="accounts-list-loading" class="muted htmx-indicator" aria-live="polite">Loading accounts...</p>
+
+  <div id="accounts-list-content">
+    {% include "ui/partials/account/accounts_list.html" %}
+  </div>
 </section>

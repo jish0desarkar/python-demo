@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class ORMModel(BaseModel):
@@ -9,6 +9,17 @@ class ORMModel(BaseModel):
 
 class AccountCreate(BaseModel):
     name: str = Field(min_length=1, max_length=255)
+    keywords: str = ""
+
+    @field_validator("keywords", mode="before")
+    @classmethod
+    def _normalize_keywords(cls, v: str) -> str:
+        seen: list[str] = []
+        for part in (v or "").split(","):
+            kw = part.strip().lower()
+            if kw and kw not in seen: # remoive duplicates
+                seen.append(kw)
+        return ",".join(seen)
 
 
 class AccountRead(ORMModel):

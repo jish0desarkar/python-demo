@@ -16,6 +16,11 @@
             </a>
           </strong>
           <div class="muted">Account #{{ account.id }}</div>
+          {% if account.keyword_list %}
+            <div class="muted">
+              {% for kw in account.keyword_list %}<span class="tag">{{ kw }}</span>{% endfor %}
+            </div>
+          {% endif %}
         </li>
       {% endfor %}
     </ul>

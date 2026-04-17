@@ -20,8 +20,12 @@ def get_account(db: Session, account_id: int) -> Account:
     return account
 
 
-def list_accounts_data(db: Session) -> list[Account]:
-    return db.scalars(select(Account).order_by(Account.id)).all()
+def list_accounts_data(db: Session, q: str = "") -> list[Account]:
+    stmt = select(Account).order_by(Account.id)
+    q = q.strip().lower()
+    if q:
+        stmt = stmt.where(Account.keywords.like(f"%{q}%"))
+    return db.scalars(stmt).all()
 
 
 def list_account_sources_data(db: Session, account_id: int) -> list[Source]:
@@ -56,12 +60,14 @@ def account_panel_context(
     db: Session,
     *,
     name: str = "",
+    keywords: str = "",
+    q: str = "",
     error: str | None = None,
     message: str | None = None,
 ) -> dict:
     return {
-        "accounts": list_accounts_data(db),
-        "form_data": {"name": name},
+        "accounts": list_accounts_data(db, q),
+        "form_data": {"name": name, "keywords": keywords, "q": q},
         "error": error,
         "message": message,
     }
@@ -90,6 +96,8 @@ def render_accounts(
     db: Session,
     *,
     name: str = "",
+    keywords: str = "",
+    q: str = "",
     error: str | None = None,
     message: str | None = None,
     status_code: int = status.HTTP_200_OK,
@@ -98,7 +106,7 @@ def render_accounts(
         "ui/partials/account/accounts_panel.html",
         {
             "request": request,
-            **account_panel_context(db, name=name, error=error, message=message),
+            **account_panel_context(db, name=name, keywords=keywords, q=q, error=error, message=message),
         },
         status_code=status_code,
     )
@@ -131,28 +139,30 @@ def render_account_detail(
 
 
 @router.get("", response_class=HTMLResponse)
-def list_accounts(request: Request, db: Session = Depends(get_db)):
-    return render_accounts(request, db)
+def list_accounts(request: Request, q: str = "", db: Session = Depends(get_db)):
+    return render_accounts(request, db, q=q)
 
 
 @router.post("", response_class=HTMLResponse)
 def create_account(
     request: Request,
     name: str = Form(""),
+    keywords: str = Form(""),
     db: Session = Depends(get_db),
 ):
     try:
-        payload = AccountCreate(name=name.strip())
+        payload = AccountCreate(name=name.strip(), keywords=keywords)
     except ValidationError as exc:
         return render_accounts(
             request,
             db,
             name=name,
+            keywords=keywords,
             error=exc.errors()[0]["msg"],
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
         )
 
-    account = Account(name=payload.name)
+    account = Account(name=payload.name, keywords=payload.keywords)
     db.add(account)
     db.commit()
 

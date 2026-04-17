@@ -7,6 +7,14 @@
     </p>
     <h2>{{ account.name }}</h2>
     <p class="muted">Account #{{ account.id }}. Link shared sources below.</p>
+    <p class="muted">
+      Keywords:
+      {% if account.keyword_list %}
+        {{ account.keywords }}
+      {% else %}
+        none
+      {% endif %}
+    </p>
   </section>
 
   {% include "ui/partials/source/sources_panel.html" %}

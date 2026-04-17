@@ -32,5 +32,29 @@
     </form>
   </section>
 
-  {% include "ui/partials/user/users_list.html" %}
+  <section class="panel">
+    <form
+      hx-get="/users"
+      hx-target="#users-page"
+      hx-swap="outerHTML"
+      hx-trigger="input changed delay:300ms, submit"
+      hx-indicator="#users-list-loading"
+    >
+      <label>
+        Search by name or email
+        <input
+          type="search"
+          name="q"
+          value="{{ form_data.q }}"
+          placeholder="e.g. alice or @example.com"
+        />
+      </label>
+    </form>
+  </section>
+
+  <p id="users-list-loading" class="muted htmx-indicator" aria-live="polite">Loading users...</p>
+
+  <div id="users-list-content">
+    {% include "ui/partials/user/users_list.html" %}
+  </div>
 </section>

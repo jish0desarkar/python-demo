@@ -26,10 +26,13 @@ def list_accounts_data(db: Session) -> list[Account]:
     return db.scalars(select(Account).order_by(Account.id)).all()
 
 
-def list_users_data(db: Session) -> list[User]:
-    return db.scalars(
-        select(User).options(selectinload(User.account)).order_by(User.id)
-    ).all()
+def list_users_data(db: Session, q: str = "") -> list[User]:
+    stmt = select(User).options(selectinload(User.account)).order_by(User.id)
+    q = q.strip()
+    if q:
+        pattern = f"%{q}%"
+        stmt = stmt.where(User.name.ilike(pattern) | User.email.ilike(pattern))
+    return db.scalars(stmt).all()
 
 
 def user_panel_context(
@@ -38,16 +41,18 @@ def user_panel_context(
     name: str = "",
     email: str = "",
     account_id: int | None = None,
+    q: str = "",
     error: str | None = None,
     message: str | None = None,
 ) -> dict:
     return {
-        "users": list_users_data(db),
+        "users": list_users_data(db, q),
         "accounts": list_accounts_data(db),
         "form_data": {
             "name": name,
             "email": email,
             "account_id": account_id,
+            "q": q,
         },
         "error": error,
         "message": message,
@@ -61,6 +66,7 @@ def render_users(
     name: str = "",
     email: str = "",
     account_id: int | None = None,
+    q: str = "",
     error: str | None = None,
     message: str | None = None,
     status_code: int = status.HTTP_200_OK,
@@ -74,6 +80,7 @@ def render_users(
                 name=name,
                 email=email,
                 account_id=account_id,
+                q=q,
                 error=error,
                 message=message,
             ),
@@ -97,8 +104,8 @@ def render_user_detail(
 
 
 @router.get("", response_class=HTMLResponse)
-def list_users(request: Request, db: Session = Depends(get_db)):
-    return render_users(request, db)
+def list_users(request: Request, q: str = "", db: Session = Depends(get_db)):
+    return render_users(request, db, q=q)
 
 
 @router.post("", response_class=HTMLResponse)

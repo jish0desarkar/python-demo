@@ -37,6 +37,11 @@ class Account(TimestampMixin, Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
+    keywords: Mapped[str] = mapped_column(Text, nullable=False, server_default="")
+
+    @property
+    def keyword_list(self) -> list[str]:
+        return [k for k in self.keywords.split(",") if k]
 
     users: Mapped[list["User"]] = relationship(
         back_populates="account",
