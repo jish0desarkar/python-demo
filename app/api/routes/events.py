@@ -110,7 +110,7 @@ def event_panel_context(
 
     event_ids = None
     if search_query:
-        summary_ids = HybridSearch().search(search_query)
+        summary_ids = HybridSearch().search(db, search_query)
         if summary_ids:
             event_ids = [
                 row[0]
