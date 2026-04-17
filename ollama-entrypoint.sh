@@ -3,7 +3,7 @@
 MODEL="${OLLAMA_MODEL:-phi3:mini}"
 # Keep in sync with AVAILABLE_EMBEDDING_MODELS in app/services/llm.py so
 # switching EMBEDDING_MODEL does not require a new pull at runtime.
-EMBEDDING_MODELS="nomic-embed-text"
+EMBEDDING_MODELS="nomic-embed-text mxbai-embed-large"
 
 ollama serve &
 OLLAMA_PID=$!
